@@ -18,10 +18,10 @@ public class Test1 extends Application {
 
     private Pane pane;
 
-    private final float width = 1000;
-    private final float height = 800;
+    private final float width = 600;
+    private final float height = 600;
 
-    private final int col = 80,row = 80;
+    private final int col = 40,row = 40;
     private Spot[][] grid;
 
     private ArrayList<Spot> openSet,closeSet;
@@ -54,6 +54,9 @@ public class Test1 extends Application {
         Spot(int x, int y){
             this.i = x;
             this.j = y;
+            this.f = 0;
+            this.g = 0;
+            this.hx = 0;
             rect = new Rectangle();
             rect.setWidth(w-1);
             rect.setHeight(h-1);
@@ -65,7 +68,7 @@ public class Test1 extends Application {
 
             this.wall = false;
             int random = new Random().nextInt(15);
-            if(random < 3) this.wall = true;
+            if(random <3) this.wall = true;
 
             setEvent();
         }
@@ -124,6 +127,7 @@ public class Test1 extends Application {
 
         openSet = new ArrayList<>();
         closeSet = new ArrayList<>();
+        path = new ArrayList<>();
 
         for(int i = 0;i < col; i++){
             for(int j = 0; j<row; j++){
@@ -137,7 +141,6 @@ public class Test1 extends Application {
             }
         }
 
-
         start = grid[0][0];
         goal = grid[col-1][row-1];
         start.wall = false;
@@ -148,7 +151,7 @@ public class Test1 extends Application {
 
     public void draw(){
         KeyFrame keyFrame = new KeyFrame(Duration.millis(100),e->{
-           display();
+            display();
         });
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.getKeyFrames().add(keyFrame);
@@ -160,35 +163,45 @@ public class Test1 extends Application {
         if(!openSet.isEmpty()){
             int winner = 0;
             for(int i = 0;i< openSet.size(); i++){
-                if(openSet.get(i).g < openSet.get(winner).g){
+                if(openSet.get(i).f < openSet.get(winner).f){
                     winner = i;
                 }
                 Spot current = openSet.get(winner);
-                System.out.println("Current: "+current);
                 temp = current;
                 if(current == goal){
+                    path.clear();
+                    path.add(temp);
+                    while (temp.previous != null) {
+                        path.add(temp.previous);
+                        temp = temp.previous;
+                    }
                     goalAchieved = true;
-                    System.out.println("done! blocks: "+path.size());
+//                    System.out.println("done! blocks: "+path.size());
                 }
                 openSet.remove(current);
                 closeSet.add(current);
 
-                for (Spot neighbour : current.neighbours) {
-                    if(closeSet.contains(neighbour) || neighbour.wall) continue;
-                    System.out.println("neighbour: "+neighbour);
-                    double tempG = current.g +1; // add the difference of their distance in my case it's 1.
-                    if(openSet.contains(neighbour)){
-                        if(tempG < neighbour.g){
+                if(!goalAchieved)
+                    for (Spot neighbour : current.neighbours) {
+                        if(closeSet.contains(neighbour) || neighbour.wall) continue;
+                        double tempG = current.g +1; // add the difference of their distance in my case it's 1.
+                        boolean newPath = false;
+                        if(openSet.contains(neighbour)){
+                            if(tempG < neighbour.g){
+                                neighbour.g = tempG;
+                                newPath = true;
+                            }
+                        }else{
                             neighbour.g = tempG;
+                            openSet.add(neighbour);
+                            newPath = true;
                         }
-                    }else{
-                        neighbour.g = tempG;
-                        openSet.add(neighbour);
+                        if(newPath) {
+                            neighbour.hx = heuristic(neighbour, goal);
+                            neighbour.f = neighbour.g + neighbour.hx;
+                            neighbour.previous = current;
+                        }
                     }
-                    neighbour.hx = heuristic(neighbour, goal);
-                    neighbour.f = neighbour.g + neighbour.hx;
-                    neighbour.previous = current;
-                }
             }
             // we can keep going
         }else {
@@ -201,20 +214,11 @@ public class Test1 extends Application {
                 spot.show(Color.WHITE);
             }
         }
-        System.out.println("In OpenSet: "+openSet.size());
         for (Spot spot : openSet) {
             spot.show(Color.BLUE);
         }
         for (Spot spot : closeSet) {
             spot.show(Color.PINK);
-        }
-        if(temp!=null) {
-            path = new ArrayList<>();
-            path.add(temp);
-            while (temp.previous != null) {
-                path.add(temp.previous);
-                temp = temp.previous;
-            }
         }
         for (Spot spot : path) {
             spot.show(Color.GREEN);
@@ -235,8 +239,8 @@ public class Test1 extends Application {
     }
 
     private double heuristic(Spot a, Spot b){
-//        return dist(a.i,a.j,b.i,b.j);
-        return Math.abs(a.i-b.i) + Math.abs(a.j-b.j);
+        return dist(a.i,a.j,b.i,b.j);
+//        return Math.abs(a.i-b.i) + Math.abs(a.j-b.j);
     }
 
     private double dist(float x1,float y1, float x2, float y2){
