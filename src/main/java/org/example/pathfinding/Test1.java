@@ -13,6 +13,7 @@ import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Test1 extends Application {
 
@@ -150,7 +151,9 @@ public class Test1 extends Application {
     }
 
     public void draw(){
-        KeyFrame keyFrame = new KeyFrame(Duration.millis(100),e->{
+        AtomicInteger count = new AtomicInteger();
+        KeyFrame keyFrame = new KeyFrame(Duration.millis(1),e->{
+            System.out.println("Cycle: "+count.getAndIncrement());
             display();
         });
         timeline.setCycleCount(Animation.INDEFINITE);
