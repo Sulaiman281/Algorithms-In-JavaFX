@@ -97,14 +97,14 @@ public class Test1 extends Application {
             if(i < col -1)
                 this.neighbours.add(grid[i+1][j]);
 
-            if(i>0 && j>0)
-                this.neighbours.add(grid[i-1][j-1]);
-            if(i<col-1 && j<row-1)
-                this.neighbours.add(grid[i+1][j+1]);
-            if(i<col-1 && j>0)
-                this.neighbours.add(grid[i+1][j-1]);
-            if(i>0 && j<row-1)
-                this.neighbours.add(grid[i-1][j+1]);
+//            if(i>0 && j>0)
+//                this.neighbours.add(grid[i-1][j-1]);
+//            if(i<col-1 && j<row-1)
+//                this.neighbours.add(grid[i+1][j+1]);
+//            if(i<col-1 && j>0)
+//                this.neighbours.add(grid[i+1][j-1]);
+//            if(i>0 && j<row-1)
+//                this.neighbours.add(grid[i-1][j+1]);
         }
 
         @Override
@@ -226,6 +226,7 @@ public class Test1 extends Application {
         for (Spot spot : path) {
             spot.show(Color.GREEN);
         }
+        temp.show(Color.BLUEVIOLET);
         start.show(Color.LIGHTGREEN);
         goal.show(Color.YELLOW);
         if(goalAchieved) timeline.stop();
